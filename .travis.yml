@@ -88,6 +88,7 @@ before_install:
 install:
   # make sure travis test scripts are always latest (so in older releases/branches, the latest scripts will still be used)
   - git fetch
+  - git branch -a
   - git checkout master -- ./tests/travis ./plugins/CoreConsole
 
 before_script:
@@ -131,7 +132,7 @@ before_script:
   - ./tests/travis/setup_webserver.sh
 
   - export GENERATE_TRAVIS_YML_COMMAND='php ./console generate:travis-yml --core'
-  - ./tests/travis/autoupdate_travis_yml.sh
+  #- ./tests/travis/autoupdate_travis_yml.sh
 
   - cd tests/PHPUnit
 
