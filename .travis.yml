@@ -5,8 +5,8 @@ language: php
 # We want to test against PHP 5.3.3/5.4/5.5
 php:
   - 5.5
-  - 5.4
-  - 5.3.3
+#  - 5.4
+#  - 5.3.3
 #  - 5.6
 #  - hhvm
 
@@ -14,16 +14,16 @@ php:
 env:
   matrix:
     # PDO Mysql
-    - TEST_SUITE=IntegrationTests MYSQL_ADAPTER=PDO_MYSQL
-    - TEST_SUITE=PluginTests MYSQL_ADAPTER=PDO_MYSQL
+    #- TEST_SUITE=IntegrationTests MYSQL_ADAPTER=PDO_MYSQL
+    #- TEST_SUITE=PluginTests MYSQL_ADAPTER=PDO_MYSQL
     - TEST_SUITE=CoreTests MYSQL_ADAPTER=PDO_MYSQL
     # Mysqli
-    - TEST_SUITE=IntegrationTests MYSQL_ADAPTER=MYSQLI
-    - TEST_SUITE=PluginTests MYSQL_ADAPTER=MYSQLI
-    - TEST_SUITE=CoreTests MYSQL_ADAPTER=MYSQLI
+    #- TEST_SUITE=IntegrationTests MYSQL_ADAPTER=MYSQLI
+    #- TEST_SUITE=PluginTests MYSQL_ADAPTER=MYSQLI
+    #- TEST_SUITE=CoreTests MYSQL_ADAPTER=MYSQLI
     # Javascript tests
-    - TEST_SUITE=JavascriptTests MYSQL_ADAPTER=PDO_MYSQL
-    - TEST_SUITE=AngularJSTests MYSQL_ADAPTER=PDO_MYSQL
+    #- TEST_SUITE=JavascriptTests MYSQL_ADAPTER=PDO_MYSQL
+    #- TEST_SUITE=AngularJSTests MYSQL_ADAPTER=PDO_MYSQL
   global:
     - PIWIK_ROOT_DIR=$TRAVIS_BUILD_DIR
     - secure: "AMhZmPZx4SUcuZRBzGHlQPxzM4D8FvFB3UThDa52gbi9KIBrwcumzV2VGi6B\n5fgjwtB4XTE1In7qhY2HMikPWBmWYYOQ5QcMPJsqqHt4iMmahx8WKzne6NOk\nNpqAuje/fulNGeP2LJZi0nrub3Fh4VwXaOvpNloKNQN/2JuqPtM="
@@ -104,6 +104,15 @@ before_script:
   - mysql -e "SELECT @@sql_mode;"
   - mysql -e "SHOW GLOBAL VARIABLES;"
 
+  # create ramdisk
+  - mkdir -p $PIWIK_ROOT_DIR/tmp/ramdisk
+  - mount -t tmpfs -o size=512m tmpfs $PIWIK_ROOT_DIR/tmp/ramdisk
+
+  # change mysql data directory to directory of ramdisk
+  - sudo /etc/init.d/mysql stop
+  - sudo sed "s%datadir\\s*=\\s*.*$%datadir = $PIWIK_ROOT_DIR/tmp/ramdisk%" /etc/mysql/my.cnf > /etc/mysq/my.cnf
+  - sudo /etc/init.d/mysql start
+
   # Start UI tests
   - ./tests/travis/initiate_ui_tests.sh
   # travis now complains about this failing 9 times out of 10, so removing it. hopefully the random failures it prevented won't come back
@@ -130,7 +139,7 @@ before_script:
   - ./tests/travis/setup_webserver.sh
 
   - export GENERATE_TRAVIS_YML_COMMAND='php ./console generate:travis-yml --core'
-  - ./tests/travis/autoupdate_travis_yml.sh
+  #- ./tests/travis/autoupdate_travis_yml.sh
 
   - cd tests/PHPUnit
 
